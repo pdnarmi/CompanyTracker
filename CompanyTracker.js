@@ -36,22 +36,30 @@ const start = ()=>{
 };
 
 const manageDepts = ()=>{
-    inquirer.prompt(
-        {
-            type: 'list',
-            name: 'actions',
-            message:'Choose which action you would like to perform.',
-            choices:['Add department','Delete department','Return to previous screen']
-        }
-    ).then((answers)=>{
-        if (answers.actions === 'Add department'){
-            addDept();
-        } else if (answers.actions === 'Delete department'){
-            delDept();
-        } else {
-            start();
-        }
-    })
+    connection.query('SELECT * FROM department',(err, res)=>{
+        if (err) throw err;
+        console.table(res);
+        inquirer.prompt(
+            {
+                type: 'list',
+                name: 'actions',
+                message:'Choose which action you would like to perform.',
+                choices:['Add department','Delete department','Return to previous screen']
+            }
+        ).then((answers)=>{
+            if (answers.actions === 'Add department'){
+                console.clear();
+                addDept();
+            } else if (answers.actions === 'Delete department'){
+                console.clear();
+                delDept();
+            } else {
+                start();
+            }
+        })
+    });
+
+    
 };
 
 const addDept = ()=>{
@@ -69,6 +77,7 @@ const addDept = ()=>{
             (err)=>{
                 if (err) throw err;
                 console.log(answer.name +' Department created!');
+                console.clear();
                 manageDepts();
             }
         )
@@ -87,7 +96,8 @@ const delDept = ()=>{
         }).then((answer)=>{
             if (isNaN(answer.id) === false){
                 connection.query(`DELETE FROM department WHERE id=${answer.id}`);
-                console.log('Successfully deleted!')
+                console.log('Successfully deleted!');
+                console.clear();
                 manageDepts();
             }
             else{
@@ -107,10 +117,13 @@ const manageRoles = ()=>{
         choices:['Add role', 'Delete Role','Return to previous screen']
     }).then((answer)=>{
         if (answer.actions === 'Add role'){
+            
             addRole();
         }else if (answer.actions === 'Delete Role'){
+            
             delRole();
         }else{
+            console.clear();
             start();
         }
     })
@@ -131,7 +144,7 @@ const addRole = ()=>{
         {
             type:'input',
             name:'department_id',
-            message:'Please enter department name'
+            message:'Please enter department id'
         }
     ]).then((answer)=>{
         if(isNaN(answer.salary) === false){
@@ -145,6 +158,7 @@ const addRole = ()=>{
             (err)=>{
                 if (err) throw err;
                 console.log(answer.title +' Role created!');
+                console.clear();
                 manageRoles();
             }
         )}
@@ -167,6 +181,7 @@ const delRole = ()=>{
             if (isNaN(answer.id) === false){
                 connection.query(`DELETE FROM role WHERE id=${answer.id}`);
                 console.log('Successfully deleted!')
+                console.clear();
                 manageRoles();
             }
             else{
@@ -185,48 +200,57 @@ const manageEmps = ()=>{
         choices:['Add employee', 'Delete employee','Return to previous screen']
     }).then((answer)=>{
         if (answer.actions === 'Add employee'){
+            console.clear();
             addEmp();
         }else if (answer.actions === 'Delete employee'){
+            console.clear();
             delEmp();
         }else{
+            console.clear();
             start();
         }
     })
 };
 
 const addEmp = ()=>{
-    inquirer.prompt([
-        {
-            type:'input',
-            name:'firstName',
-            message: 'Please enter employee first name.'
-        },
-        {
-            type:'input',
-            name:'lastName',
-            message:'Please enter employee last name.'
-        },
-        {
-            type:'input',
-            name:'role_id',
-            message:'Please enter role ID.'
-        },
-        {
-            type:'input',
-            name:'manager_id',
-            message:'Please enter manager name.'
-        }
-    ]).then((answers)=>{
-        connection.query('INSERT INTO employee SET ?',{
-            first_name: answers.firstName,
-            last_name: answers.lastName,
-            role_id:answers.role_id,
-            manager_id:answers.manager_id
-        },(err)=>{if(err)throw err;} 
-       )
-       console.log('Successfully added employee!');
-        manageEmps();
-    })
+    connection.query('SELECT * FROM employee',(err,res)=>{
+        if (err)throw err;
+        console.table(res);
+        inquirer.prompt([
+            {
+                type:'input',
+                name:'firstName',
+                message: 'Please enter employee first name.'
+            },
+            {
+                type:'input',
+                name:'lastName',
+                message:'Please enter employee last name.'
+            },
+            {
+                type:'input',
+                name:'role_id',
+                message:'Please enter role ID.'
+            },
+            {
+                type:'input',
+                name:'manager_id',
+                message:'Please enter manager id.'
+            }
+        ]).then((answers)=>{
+            connection.query('INSERT INTO employee SET ?',{
+                first_name: answers.firstName,
+                last_name: answers.lastName,
+                role_id:answers.role_id,
+                manager_id:answers.manager_id
+            },(err)=>{if(err)throw err;
+                console.log('Added employee.')
+            console.clear();
+            manageEmps()} 
+           );
+           
+        });
+    });
 }
 
 const delEmp = ()=>{
@@ -242,7 +266,8 @@ const delEmp = ()=>{
             if (isNaN(answer.id) === false){
                 connection.query(`DELETE FROM employee WHERE id=${answer.id}`);
                 console.log('Successfully deleted!')
-                manageRoles();
+                console.clear();
+                manageEmps();
             }
             else{
                 console.log('Incorrect Input!');
