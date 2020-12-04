@@ -1,0 +1,11 @@
+{
+  "name": "companytracker",
+  "version": "1.0.0",
+  "description": "Tracks employees, managers, and deptarments!",
+  "main": "CompanyTracker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Patrick Narmi",
+  "license": "ISC"
+}
